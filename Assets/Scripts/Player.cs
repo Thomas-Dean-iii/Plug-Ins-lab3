@@ -1,48 +1,28 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement2D : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float moveSpeed = 5f;
-    public float jumpForce = 7f;
-
-    [Header("Ground Check")]
-    public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
-    public LayerMask groundLayer;
+    public float moveSpeed = 5f; 
 
     private Rigidbody2D rb;
-    private bool isGrounded;
-
-    void Awake()
+    private Vector2 movement;
+    void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-    }
-
-    void Update()
-    {
-       
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        
-        float moveInput = Input.GetAxisRaw("Horizontal");
-        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
-
-        
-        if (moveInput != 0)
-            transform.localScale = new Vector3(Mathf.Sign(moveInput), 1, 1);
-
-        
-        
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        if (groundCheck != null)
+        if (rb == null)
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+            Debug.LogError("Rigidbody2D component missing from this GameObject.");
         }
+    }
+    void Update()
+    {  
+        movement.x = Input.GetAxisRaw("Horizontal");
+        movement.y = Input.GetAxisRaw("Vertical");
+        movement = movement.normalized;
+    }
+
+    void FixedUpdate()
+    { 
+        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
 }
